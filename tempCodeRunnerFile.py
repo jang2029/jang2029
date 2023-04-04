@@ -1,0 +1,7 @@
+
+
+
+print("hello")
+
+cmds.sphere()
+
