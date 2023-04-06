@@ -1,4 +1,8 @@
-list = [['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_main/v003/maya/ash_model_main_v003.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_main/v004/maya/ash_model_main_v004.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_main/v005/maya/ash_model_main_v005.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_main/v006/maya/ash_model_main_v006.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_sub/v001/maya/ash_model_sub_v001.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_sub/v002/maya/ash_model_sub_v002.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_sub/v003/maya/ash_model_sub_v003.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_sub/v005/maya/ash_model_sub_v005.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_sub/v007/maya/ash_model_sub_v007.mb'], ['C:/Program Files/Autodesk/Maya2022/bin/mayabatch D:/projects/eaapexseason17_42048P/assets/3D/character/ash/model/output/geometry/model_sub/v008/maya/ash_model_sub_v008.mb']]
 
-for i in list:
-    print(i)
+
+import subprocess
+
+mayaVersion = 'Maya2022'
+# subprocess.run(f'"C:/Program Files/Autodesk/{mayaVersion}/bin/mayabatch.exe" -command "loadPlugin MayaScanner"')
+# subprocess.run(f'"C:/Program Files/Autodesk/{mayaVersion}/bin/mayabatch.exe" -command "loadPlugin MayaScannerCB"')
+subprocess.run(f'"C:/Program Files/Autodesk/{mayaVersion}/bin/mayabatch.exe" -command "loadPlugin MayaScanner; loadPlugin MayaScannerCB;"')

@@ -1,7 +1,1 @@
-
-
-
-print("hello")
-
-cmds.sphere()
-
+subprocess.run(f'"C:/Program Files/Autodesk/{mayaVersion}/bin/mayabatch.exe" -command "loadPlugin MayaScanner" "loadPlugin MayaScannerCB"')

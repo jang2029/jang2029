@@ -1,16 +1,24 @@
+
+
 import os, sys
 import subprocess
 import time
 import multiprocessing
+
+def scan(file):
+
+    print('PID :', os.getpid())
+    subprocess.run(file)
+    print (f'process: {file}')
 
 
 def list_chuck(arr, n):
     return [arr[i: i + n] for i in range(0, len(arr), n)]
 
 
-def serchMayafile(dirname, mayaVersion):
+def serchMayafile(dirname, mayaVersion):    
 
-    subprocess.run(f'"C:/Program Files/Autodesk/{mayaVersion}/bin/mayabatch.exe" -command "loadPlugin MayaScanner" -command "loadPlugin MayaScannerCB"')
+    subprocess.run(f'"C:/Program Files/Autodesk/{mayaVersion}/bin/mayabatch.exe" -command "loadPlugin MayaScanner; loadPlugin MayaScannerCB;"')
     list = []
     for (path, dir, files) in os.walk(dirname):
         for filename in files:
@@ -33,15 +41,8 @@ def serchMayafile(dirname, mayaVersion):
         for p in procs:
             p.join()
 
-def scan(file):
 
-    print('PID :', os.getpid())
-    subprocess.run(file)
-    print (f'process: {file}')
-
-
-
-if __name__ == '__main__':
+def main():
 
     print('\n\n')
     dirname = input('Type serch folder:')
@@ -51,7 +52,8 @@ if __name__ == '__main__':
         sys.exit(0)
 
 
-    mayaVersion = input('Type maya version( Maya2018, Maya2022):')
+    # mayaVersion = input('Type maya version( Maya2018, Maya2022):')
+    mayaVersion = 'Maya2018'
     startTime = time.time()
     if (mayaVersion == 'Maya2022') or (mayaVersion == 'Maya2018'):
         serchMayafile(dirname, mayaVersion)
@@ -63,6 +65,8 @@ if __name__ == '__main__':
 
 
 
-
+if __name__ == '__main__':
+    
+    main()
 
 
