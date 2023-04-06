@@ -1,16 +1,16 @@
 import os
 import subprocess
 import time
-from multiprocessing import Process
+import multiprocessing
 
 
 
-def list_chuck(arr, n):
-    return [arr[i: i + n] for i in range(0, len(arr), n)]
+
 
 
 
 def search(dirname):
+    
     list = []
     for (path, dir, files) in os.walk(dirname):
         for filename in files:
@@ -18,23 +18,21 @@ def search(dirname):
             if (ext == '.ma') or (ext == '.mb'):
                 mayaFile = path.replace('\\', '/') + '/' + filename
                 list.append("C:/Program Files/Autodesk/Maya2022/bin/mayabatch" + " " + mayaFile)
-                
-    
-    result_array = list_chuck(list, 2)
-    print(result_array)
+    print (list)            
+    procs = []
+    for i in list:
+        p = multiprocessing.Process(target=scan, args=(i, ))
+        p.start()
+        procs.append(p)
 
-    p1 = Process(target=scan, args=(result_array[0],))
-    p1.start(); p1.join()
-    p2 = Process(target=scan, args=(result_array[1],))
-    p2.start(); p2.join()
-
+    for p in procs:
+        p.join()
 
 def scan(file):
 
     print('PID :', os.getpid())
-    for i in file:
-        subprocess.run(i)
-
+    subprocess.run(file)
+    print (f'process: {file}')
 
 
 
