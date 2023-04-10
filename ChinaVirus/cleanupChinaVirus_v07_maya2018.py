@@ -9,6 +9,7 @@ import multiprocessing
 
 def scan(file):
     
+    print('\n\n')
     print('PID :', os.getpid())
     print (f'process: {file}')
     subprocess.run(file)
@@ -72,5 +73,6 @@ def main():
 if __name__ == '__main__':
     
     main()
+    input(input('END....press Enter'))
 
 
