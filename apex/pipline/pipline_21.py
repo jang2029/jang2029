@@ -1,7 +1,7 @@
 
 # maya 2022
 # mayapy 3.7.7
-toolVersion = 'pipline_19.py'
+toolVersion = 'pipline_21.py'
 from maya import OpenMayaUI as omui
 
 from PySide2.QtCore import *
@@ -51,7 +51,7 @@ class piplineToolUI(QWidget):
         self.setWindowFlags(Qt.Window)
         self.setObjectName(self.window_name)
 
-        self.initUI()
+        self.baseUI()
 
         self.openCurrentENV()
 
@@ -1934,19 +1934,20 @@ class piplineToolUI(QWidget):
         if QMessageBox.No == self.confirmMessage('Do you want to save this file?'):
             return 0
 
-        # save WIP
-        # make WIP maya dir
-        wip_maya_dir = self.getLookDevSaveDir('work') + '/maya/scenes/increments'
-        if not os.path.isdir(wip_maya_dir):
-            os.makedirs(wip_maya_dir)
-        # make WIP save path
-        version_num = self.getSaveVersion(wip_maya_dir)-1
-        print('version_num = '+str(version_num))
-        wip_version = f'v{str(version_num).zfill(3)}'
+
+        filepath = cmds.file(q=True, sn=True)
+        filename = os.path.basename(filepath)
+        raw_name, extension = os.path.splitext(filename)
+        pattern = '_v([0-9]+)'
+        wip_version = 'v'+str(re.search(pattern, raw_name).group(1))
+
+
 
         print('wip_version = '+ wip_version)
         pub_maya_file = self.getLookDevSaveFile(wip_version, 'mb')
         pub_maya_path = self.getLookDevSaveDir('output') + '/shadegeo/shade_main/' + wip_version + '/maya'
+
+
         if not os.path.isdir(pub_maya_path):
             os.makedirs(pub_maya_path)
         else:
@@ -2081,50 +2082,51 @@ class piplineToolUI(QWidget):
             print('DO not make ABC')
 
 
+        if QMessageBox.Yes == self.confirmMessage(f'Do you want to copy texture files to {wip_version} folder?'):
 
-        # Copy Texture Files
-        pub_texture_path = self.getLookDevSaveDir('output') + '/shadegeo/shade_main' + '/' + wip_version + '/maya/textures'
-        if not os.path.isdir(pub_texture_path):
-            os.makedirs(pub_texture_path)
-        
-        for i in cmds.file(query=True, list=True):
-            filename = i.split('.')
-            if not filename[-1] in ['', 'mb', 'ma', 'abc']:
-                print (i+' copyed to '+pub_texture_path)
-                newName = i.split('/')
-                newName = (pub_texture_path + '\\' + newName[-1])
-                print ('newName = '+newName)
-                if os.path.isfile(newName):
-                    print(newName+' DELETE')
-                    os.chmod( newName, stat.S_IWRITE )
-                    os.remove(newName)
-                
-                shutil.copy(i, newName)
-                
-                
-        # Copy Texture File Path
-        fileNodes = cmds.ls(type='file')
-        print (fileNodes)
-        for fileNode in fileNodes:
-            orgPath = cmds.getAttr(fileNode+'.fileTextureName')
-            print (orgPath)
-            
-            texture_name = re.split('/', orgPath)[-1]
-            
-            newName = (pub_texture_path + '/'+ texture_name)
-            cmds.setAttr(fileNode+'.fileTextureName', newName, type ='string' )
+            # Copy Texture Files
+            pub_texture_path = self.getLookDevSaveDir('output') + '/shadegeo/shade_main' + '/' + wip_version + '/maya/textures'
+            if not os.path.isdir(pub_texture_path):
+                os.makedirs(pub_texture_path)
 
-        aifileNodes = cmds.ls(type='aiImage')
-        print (aifileNodes)
-        for fileNode in aifileNodes:
-            orgPath = cmds.getAttr(fileNode+'.filename')
-            print (orgPath)
-            
-            texture_name = re.split('/', orgPath)[-1]
-            
-            newName = (pub_texture_path + '/'+ texture_name)
-            cmds.setAttr(fileNode+'.filename', newName, type ='string' )
-            shutil.copy(orgPath, newName)
+            for i in cmds.file(query=True, list=True):
+                filename = i.split('.')
+                if not filename[-1] in ['', 'mb', 'ma', 'abc']:
+                    print (i+' copyed to '+pub_texture_path)
+                    newName = i.split('/')
+                    newName = (pub_texture_path + '\\' + newName[-1])
+                    print ('newName = '+newName)
+                    if os.path.isfile(newName):
+                        print(newName+' DELETE')
+                        os.chmod( newName, stat.S_IWRITE )
+                        os.remove(newName)
+
+                    shutil.copy(i, newName)
+
+
+            # Copy Texture File Path
+            fileNodes = cmds.ls(type='file')
+            print (fileNodes)
+            for fileNode in fileNodes:
+                orgPath = cmds.getAttr(fileNode+'.fileTextureName')
+                print (orgPath)
+
+                texture_name = re.split('/', orgPath)[-1]
+
+                newName = (pub_texture_path + '/'+ texture_name)
+                cmds.setAttr(fileNode+'.fileTextureName', newName, type ='string' )
+
+            aifileNodes = cmds.ls(type='aiImage')
+            print (aifileNodes)
+            for fileNode in aifileNodes:
+                orgPath = cmds.getAttr(fileNode+'.filename')
+                print (orgPath)
+
+                texture_name = re.split('/', orgPath)[-1]
+
+                newName = (pub_texture_path + '/'+ texture_name)
+                cmds.setAttr(fileNode+'.filename', newName, type ='string' )
+                shutil.copy(orgPath, newName)
 
 
 
@@ -2158,7 +2160,7 @@ class piplineToolUI(QWidget):
         selected_version = self.LookDevPub_version.currentItem().text()
         pub_dir = self.getLookDevSaveDir('output') + '/shadegeo/shade_main/' + selected_version + '/maya'
         print ('json:pub_dir = '+pub_dir)
-        
+
         pub_file = self.getLookDevSaveFile(selected_version, 'json')
         print ('json:pub_file = '+pub_file)
         json_path = f'{pub_dir}/{pub_file}'
@@ -2188,7 +2190,7 @@ class piplineToolUI(QWidget):
             mat = cmds.ls(mat+'*')[-1]
 
             for obj in shader_dict['surface'][sg]['objects']:
-                              
+
 
                 if namespace :      
                     node = cmds.ls(namespace+':'+obj, long = True)    
@@ -2211,9 +2213,9 @@ class piplineToolUI(QWidget):
                                 cmds.select(i)
                                 cmds.hyperShade(a=mat)
                 else:        
-                    
+
                     print('NEXT')
-                
+
                 cmds.select(cl=True)
 
 
@@ -2243,7 +2245,7 @@ class piplineToolUI(QWidget):
                 if cmds.objExists(obj):
                     cmds.sets(obj, add=dis)
 
-        
+
         cmds.select(cl=True)
 
     # common function
@@ -2255,7 +2257,7 @@ class piplineToolUI(QWidget):
         os.startfile(assetTypePath)
 
     def assetNameOpenFileBrowser(self):
-        
+
         department_dir = self.getDepartmentDir('')
         assetName = department_dir
         print('assetName = '+ assetName)
@@ -2263,14 +2265,14 @@ class piplineToolUI(QWidget):
 
 
     def openRigMidFileBrowser(self):
-        
+
         department_dir = self.getDepartmentDir('rig/output/rig')
         rigMid_dir = department_dir
         print('rigMid_dir = '+ rigMid_dir)
         os.startfile(rigMid_dir)
 
     def openRigWipVerFileBrowser(self):
-        
+
         rigWip_dir = self.getRigWipDir()
         rigWip_dir = rigWip_dir.replace('/', '\\')
         print('rigWip_dir = '+ rigWip_dir)
@@ -2285,12 +2287,12 @@ class piplineToolUI(QWidget):
         os.startfile(rigWip_dir)
 
     def openRigPubVerFileBrowser(self):
-        
+
         rigPub_dir = self.getRigPubDir()
         rigPub_dir = rigPub_dir.replace('/', '\\')
         print('rigPub_dir = '+ rigPub_dir)
         os.startfile(rigPub_dir)
-        
+
     def openRigPubFileBrowser(self):
 
         selected_version = self.rig_Pub_ver.currentItem().text()
@@ -2437,7 +2439,7 @@ class piplineToolUI(QWidget):
         self.saveCurrentENV()
         
 
-    def initUI(self):
+    def baseUI(self):
 
         # project list
         self.proj_list = QComboBox()
@@ -2786,21 +2788,29 @@ class piplineToolUI(QWidget):
 
         # lookDevWip/lookDevpub button
         # lookDevWip button
-        open_LookDevWip_btn = QPushButton('Open Wip')        
+        open_LookDevWip_btn = QPushButton('Open Wip')
+        open_LookDevWip_btn.setFixedSize(88,17)
         open_LookDevWip_btn.clicked.connect(self.openLookDevWipBtn)
         save_LookDevWip_btn = QPushButton('WIP Save')
+        save_LookDevWip_btn.setFixedSize(88,17)
         save_LookDevWip_btn.clicked.connect(self.saveLookDevWipBtn)
         LookDevWip_layout = QVBoxLayout()
+        LookDevWip_layout.setSpacing(20)
         LookDevWip_layout.addWidget(open_LookDevWip_btn)
         LookDevWip_layout.addWidget(save_LookDevWip_btn)
+
         # lookDevPub button
-        lookDevPub_btn = QPushButton('Publish')
-        lookDevPub_btn.clicked.connect(self.savelookDevPubBtn)
-        open_LookDevPub_btn = QPushButton('Open Pub')        
+        open_LookDevPub_btn = QPushButton('Open Pub')
+        open_LookDevPub_btn.setFixedSize(88,17)
         open_LookDevPub_btn.clicked.connect(self.openLookDevPubBtn)
+        lookDevPub_btn = QPushButton('Publish')
+        lookDevPub_btn.setFixedSize(88,17)
+        lookDevPub_btn.clicked.connect(self.savelookDevPubBtn)        
         lookDevPub_layout = QVBoxLayout()
+        lookDevPub_layout.setSpacing(20)
         lookDevPub_layout.addWidget(open_LookDevPub_btn)
         lookDevPub_layout.addWidget(lookDevPub_btn)
+
         # lookDevButton layout
         lookDevbtn_layout = QHBoxLayout()
         lookDevbtn_layout.addLayout(LookDevWip_layout)

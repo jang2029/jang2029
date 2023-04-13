@@ -1,7 +1,7 @@
 
 # maya 2022
 # mayapy 3.7.7
-toolVersion = 'pipline_19.py'
+toolVersion = 'pipline_20.py'
 from maya import OpenMayaUI as omui
 
 from PySide2.QtCore import *
@@ -29,7 +29,7 @@ cmds.loadPlugin( 'MayaScanner.py' )
 cmds.loadPlugin( 'MayaScannerCB.py' )
 # PROJ_DRIVE = os.getenv('PROJ_DRIVE')
 
-PROJ_DRIVE = r'P:'
+PROJ_DRIVE = r'D:'
 
 def getMayaMainWindow():
 
@@ -51,7 +51,7 @@ class piplineToolUI(QWidget):
         self.setWindowFlags(Qt.Window)
         self.setObjectName(self.window_name)
 
-        self.initUI()
+        self.baseUI()
 
         self.openCurrentENV()
 
@@ -1934,19 +1934,20 @@ class piplineToolUI(QWidget):
         if QMessageBox.No == self.confirmMessage('Do you want to save this file?'):
             return 0
 
-        # save WIP
-        # make WIP maya dir
-        wip_maya_dir = self.getLookDevSaveDir('work') + '/maya/scenes/increments'
-        if not os.path.isdir(wip_maya_dir):
-            os.makedirs(wip_maya_dir)
-        # make WIP save path
-        version_num = self.getSaveVersion(wip_maya_dir)-1
-        print('version_num = '+str(version_num))
-        wip_version = f'v{str(version_num).zfill(3)}'
+
+        filepath = cmds.file(q=True, sn=True)
+        filename = os.path.basename(filepath)
+        raw_name, extension = os.path.splitext(filename)
+        pattern = '_v([0-9]+)'
+        wip_version = 'v'+str(re.search(pattern, raw_name).group(1))
+
+
 
         print('wip_version = '+ wip_version)
         pub_maya_file = self.getLookDevSaveFile(wip_version, 'mb')
         pub_maya_path = self.getLookDevSaveDir('output') + '/shadegeo/shade_main/' + wip_version + '/maya'
+
+
         if not os.path.isdir(pub_maya_path):
             os.makedirs(pub_maya_path)
         else:
@@ -2437,7 +2438,7 @@ class piplineToolUI(QWidget):
         self.saveCurrentENV()
         
 
-    def initUI(self):
+    def baseUI(self):
 
         # project list
         self.proj_list = QComboBox()
@@ -2786,21 +2787,29 @@ class piplineToolUI(QWidget):
 
         # lookDevWip/lookDevpub button
         # lookDevWip button
-        open_LookDevWip_btn = QPushButton('Open Wip')        
+        open_LookDevWip_btn = QPushButton('Open Wip')
+        open_LookDevWip_btn.setFixedSize(88,17)
         open_LookDevWip_btn.clicked.connect(self.openLookDevWipBtn)
         save_LookDevWip_btn = QPushButton('WIP Save')
+        save_LookDevWip_btn.setFixedSize(88,17)
         save_LookDevWip_btn.clicked.connect(self.saveLookDevWipBtn)
         LookDevWip_layout = QVBoxLayout()
+        LookDevWip_layout.setSpacing(20)
         LookDevWip_layout.addWidget(open_LookDevWip_btn)
         LookDevWip_layout.addWidget(save_LookDevWip_btn)
+
         # lookDevPub button
-        lookDevPub_btn = QPushButton('Publish')
-        lookDevPub_btn.clicked.connect(self.savelookDevPubBtn)
-        open_LookDevPub_btn = QPushButton('Open Pub')        
+        open_LookDevPub_btn = QPushButton('Open Pub')
+        open_LookDevPub_btn.setFixedSize(88,17)
         open_LookDevPub_btn.clicked.connect(self.openLookDevPubBtn)
+        lookDevPub_btn = QPushButton('Publish')
+        lookDevPub_btn.setFixedSize(88,17)
+        lookDevPub_btn.clicked.connect(self.savelookDevPubBtn)        
         lookDevPub_layout = QVBoxLayout()
+        lookDevPub_layout.setSpacing(20)
         lookDevPub_layout.addWidget(open_LookDevPub_btn)
         lookDevPub_layout.addWidget(lookDevPub_btn)
+
         # lookDevButton layout
         lookDevbtn_layout = QHBoxLayout()
         lookDevbtn_layout.addLayout(LookDevWip_layout)
