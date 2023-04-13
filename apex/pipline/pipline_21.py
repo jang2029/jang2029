@@ -14,7 +14,7 @@ import maya.mel as mel
 import pymel.core as pm
 
 import os, shutil, stat, datetime
-#import sys
+import sys
 import csv
 import re
 import json
@@ -29,7 +29,7 @@ cmds.loadPlugin( 'MayaScanner.py' )
 cmds.loadPlugin( 'MayaScannerCB.py' )
 # PROJ_DRIVE = os.getenv('PROJ_DRIVE')
 
-PROJ_DRIVE = r'P:'
+PROJ_DRIVE = r'D:'
 
 def getMayaMainWindow():
 
@@ -2049,7 +2049,7 @@ class piplineToolUI(QWidget):
 
         asset_type = self.asset_type.currentItem().text()
         asset_name = self.asset_name.currentItem().text()
-        if asset_type == 'character'or asset_type == 'prop':
+        if (asset_type == 'character') or (asset_type == 'prop') or (asset_type == 'bgprop'):
 
             pub_abc_path = self.getLookDevSaveDir('output') + '/shadegeo/shade_main' + '/' + wip_version + '/alembic'
             
@@ -2081,6 +2081,37 @@ class piplineToolUI(QWidget):
         else:
             print('DO not make ABC')
 
+        if asset_type == 'bgprop':
+
+            pub_ass_path = self.getLookDevSaveDir('output') + '/shadegeo/shade_main' + '/' + wip_version + '/ass'
+            
+            pub_ass_file = self.getLookDevSaveFile(wip_version, 'ass')
+
+            # make publish ass dir
+
+            if not os.path.isdir(pub_ass_path):
+                os.makedirs(pub_ass_path)
+            pub_ass_path = pub_ass_path+'/'+pub_ass_file
+            
+            print ('pub_ass_path : ' + pub_ass_path)
+
+            
+
+            # select group
+
+            
+            item = [ i for i in cmds.ls(assemblies = True) if (cmds.listRelatives(i, s=True)) == None]
+            print ('item = ' + str(item))
+            cmds.select ( item )
+
+
+            # export alembic selected group
+            selectGroup = cmds.ls(sl=1,sn=True)
+            command = f'arnoldExportAss -f "{pub_ass_path}" -s;'
+            mel.eval(command)
+
+        else:        
+            print('DO not make ASS')
 
         if QMessageBox.Yes == self.confirmMessage(f'Do you want to copy texture files to {wip_version} folder?'):
 
@@ -2088,6 +2119,14 @@ class piplineToolUI(QWidget):
             pub_texture_path = self.getLookDevSaveDir('output') + '/shadegeo/shade_main' + '/' + wip_version + '/maya/textures'
             if not os.path.isdir(pub_texture_path):
                 os.makedirs(pub_texture_path)
+
+             # select group
+
+
+            item = [ i for i in cmds.ls(assemblies = True) if (cmds.listRelatives(i, s=True)) == None]
+            print ('item = ' + str(item))
+            cmds.select ( item )
+
 
             for i in cmds.file(query=True, list=True):
                 filename = i.split('.')
