@@ -29,7 +29,7 @@ cmds.loadPlugin( 'MayaScanner.py' )
 cmds.loadPlugin( 'MayaScannerCB.py' )
 # PROJ_DRIVE = os.getenv('PROJ_DRIVE')
 
-PROJ_DRIVE = r'D:'
+PROJ_DRIVE = r'P:'
 
 def getMayaMainWindow():
 
